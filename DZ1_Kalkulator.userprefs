@@ -1,0 +1,19 @@
+﻿<Properties StartupConfiguration="{E465BBB7-8468-4DFF-9EB1-EC653B897436}|Default">
+  <MonoDevelop.Ide.ItemProperties.DZ1__Kalkulator PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="DZ1_Kalkulator/Calculator.cs">
+    <Files>
+      <File FileName="DZ1_Kalkulator/ICalculator.cs" Line="5" Column="1" />
+      <File FileName="DZ1_Kalkulator/Calculator.cs" Line="89" Column="13" />
+      <File FileName="DZ1_Kalkulator/ExampleTests.cs" Line="386" Column="13" />
+      <File FileName="DZ1_Kalkulator/Program.cs" Line="46" Column="81" />
+      <File FileName="DZ1_Kalkulator/BinaryOperatorProvider.cs" Line="25" Column="1" />
+      <File FileName="DZ1_Kalkulator/UnaryOperatorProvider.cs" Line="18" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MultiItemStartupConfigurations />
+</Properties>
