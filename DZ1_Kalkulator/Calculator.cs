@@ -40,6 +40,11 @@ namespace PrvaDomacaZadaca_Kalkulator
 
         public void Press(char inPressedDigit)
         {
+            Console.WriteLine($"Pressed : {inPressedDigit}");
+            Console.WriteLine($"Last result : {_lastResult}");
+            Console.WriteLine($"Operator : {_operator}");
+            Console.WriteLine("------------------------------");
+
             if (char.IsDigit(inPressedDigit))
             {
                 HandleDigit(inPressedDigit);
@@ -119,6 +124,8 @@ namespace PrvaDomacaZadaca_Kalkulator
 
         private void HandleOperator(char op)
         {
+            _display.Print(_display.ParseDisplay());
+
             if (UnaryOperatorProvider.IsUnaryOperator(op))
             {
                 var fun = UnaryOperatorProvider.GetOperator(op);
@@ -163,8 +170,9 @@ namespace PrvaDomacaZadaca_Kalkulator
                 }
                     
                 var op = BinaryOperatorProvider.GetOperator(_operator);
-                _lastResult = op(_lastResult, operand);
-                _display.Print(_lastResult);
+                _display.Print(op(_lastResult, operand));
+                _operator = EMPTY_OPERATOR;
+                _lastResult = double.NaN;
             }
             else
             {

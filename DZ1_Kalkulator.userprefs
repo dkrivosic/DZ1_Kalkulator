@@ -1,15 +1,21 @@
 ﻿<Properties StartupConfiguration="{E465BBB7-8468-4DFF-9EB1-EC653B897436}|Default">
   <MonoDevelop.Ide.ItemProperties.DZ1__Kalkulator PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="DZ1_Kalkulator/Program.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="DZ1_Kalkulator/Calculator.cs">
     <Files>
-      <File FileName="DZ1_Kalkulator/Calculator.cs" Line="97" Column="62" />
-      <File FileName="DZ1_Kalkulator/Display.cs" Line="71" Column="27" />
-      <File FileName="DZ1_Kalkulator/Program.cs" Line="13" Column="16" />
+      <File FileName="DZ1_Kalkulator/Display.cs" Line="1" Column="1" />
+      <File FileName="DZ1_Kalkulator/Program.cs" Line="42" Column="81" />
+      <File FileName="DZ1_Kalkulator/NemesisTests.cs" Line="301" Column="13" />
+      <File FileName="DZ1_Kalkulator/ExampleTests.cs" Line="329" Column="11" />
+      <File FileName="DZ1_Kalkulator/Calculator.cs" Line="122" Column="13" />
     </Files>
     <Pads>
       <Pad Id="MonoDevelop.UnitTesting.TestPad">
         <State name="__root__">
-          <Node name="DZ1_Kalkulator" selected="True" />
+          <Node name="DZ1_Kalkulator" expanded="True" selected="True">
+            <Node name="DZ1_Kalkulator" expanded="True">
+              <Node name="PrvaDomacaZadaca_Kalkulator" expanded="True" />
+            </Node>
+          </Node>
         </State>
       </Pad>
     </Pads>

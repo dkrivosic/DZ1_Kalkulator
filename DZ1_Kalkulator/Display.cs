@@ -54,6 +54,11 @@ namespace PrvaDomacaZadaca_Kalkulator
 
         public void Append(char digit)
         {
+            if (digit == ',' && CurrentState.Contains(','))
+            {
+                return;
+            }
+
             int digitsCount = CurrentState.Where(c => char.IsNumber(c)).Count();
             if (digitsCount < DISPLAY_SIZE)
             {

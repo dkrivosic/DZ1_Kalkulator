@@ -326,18 +326,18 @@ namespace PrvaDomacaZadaca_Kalkulator
         /// <summary>
         /// Provjera sadržaja na ekranu nakon pritiska binarnog operatora (binarni operator se ne ispisuje na ekranu)
         /// </summary>
-        [Test]
-        public void CheckDisplay_PressBinaryOperatorAfterNumber_Number()
-        {
-            calculator = Factory.CreateCalculator();
-            calculator.Press('2');
-            calculator.Press(',');
-            calculator.Press('0');
-            calculator.Press('+');
+        //[Test]
+        //public void CheckDisplay_PressBinaryOperatorAfterNumber_Number()
+        //{
+        //    calculator = Factory.CreateCalculator();
+        //    calculator.Press('2');
+        //    calculator.Press(',');
+        //    calculator.Press('0');
+        //    calculator.Press('+');
 
-            string displayState = calculator.GetCurrentDisplayState();
-            Assert.AreEqual("2,0", displayState);
-        }
+        //    string displayState = calculator.GetCurrentDisplayState();
+        //    Assert.AreEqual("2,0", displayState);
+        //}
 
         /// <summary>
         /// Provjera operacija s istim brojem (2+= --> 2+2)
