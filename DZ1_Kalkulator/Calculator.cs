@@ -4,6 +4,8 @@ using System.Globalization;
 
 namespace PrvaDomacaZadaca_Kalkulator
 {
+    enum ButtonCategory { Nothing, Number, Digit, Comma, BinaryOperator, UnaryOperator }
+
     public class Factory
     {
         public static ICalculator CreateCalculator()
@@ -19,15 +21,17 @@ namespace PrvaDomacaZadaca_Kalkulator
         private string _display;
         private char _operator;
         private double _lastResult;
-        private bool _appendMode;
+        private ButtonCategory _lastPressed;
+        private string _memory;
 
         public Calculator()
         {
             _display = "0";
             _operator = EMPTY_OPERATOR;
             _lastResult = double.NaN;
-            _appendMode = false;
             CultureInfo.CurrentCulture = new CultureInfo("hr-HR");
+            _lastPressed = ButtonCategory.Nothing;
+            _memory = "0";
         }
 
         public string GetCurrentDisplayState()
@@ -41,13 +45,14 @@ namespace PrvaDomacaZadaca_Kalkulator
             Console.WriteLine($"Last result: {_lastResult}");
             Console.WriteLine($"Operator: {_operator}");
             Console.WriteLine("--------------------------------");
+
             if (char.IsDigit(inPressedDigit))
             {
                 HandleDigit(inPressedDigit);
             }
             else if (inPressedDigit == ',')
             {
-                _appendMode = true;
+                _lastPressed = ButtonCategory.Comma;
                 _display += inPressedDigit;    
             }
             else if (inPressedDigit == '=')
@@ -62,7 +67,20 @@ namespace PrvaDomacaZadaca_Kalkulator
             else if (inPressedDigit == 'C')
             {
                 _display = "0";
-                _appendMode = false;
+            }
+            else if (inPressedDigit == 'O')
+            {
+                _display = "0";
+                _lastResult = double.NaN;
+                _lastPressed = ButtonCategory.Nothing;
+            }
+            else if (inPressedDigit == 'P')
+            {
+                _memory = _display;
+            }
+            else if (inPressedDigit == 'G')
+            {
+                Print(_memory);
             }
             else
             {
@@ -86,10 +104,14 @@ namespace PrvaDomacaZadaca_Kalkulator
                 return;
             }
 
-            if (!_appendMode)
+            if (_lastPressed == ButtonCategory.BinaryOperator && double.IsNaN(_lastResult))
+            {
+                _lastResult = ParseDisplay();
+            }
+
+            if (_lastPressed != ButtonCategory.Comma && _lastPressed != ButtonCategory.Digit)
             {
                 _display = "";
-                _appendMode = true;
             }
 
             int digitsCount = _display.Where(c => char.IsNumber(c)).Count();
@@ -97,6 +119,8 @@ namespace PrvaDomacaZadaca_Kalkulator
             {
                 _display += digit;
             }
+
+            _lastPressed = ButtonCategory.Digit;
         }
 
         private void HandleOperator(char op)
@@ -105,43 +129,67 @@ namespace PrvaDomacaZadaca_Kalkulator
             {
                 var fun = UnaryOperatorProvider.GetOperator(op);
                 Print(fun(ParseDisplay()));
+                _lastPressed = ButtonCategory.UnaryOperator;
             }
             else if (BinaryOperatorProvider.IsBinaryOperator(op))
             {
-                if (_operator != EMPTY_OPERATOR && _appendMode)
+                if (double.IsNaN(_lastResult))
                 {
+                    _lastResult = ParseDisplay();    
+                }
+
+                if (_operator != EMPTY_OPERATOR && _lastPressed != ButtonCategory.BinaryOperator)
+                {
+                    double number = ParseDisplay();
                     var fun = BinaryOperatorProvider.GetOperator(_operator);
-                    double result = fun(_lastResult, ParseDisplay());
-                    _lastResult = result;
-                    Print(result);
-                    _appendMode = false;
-                    _operator = op;
-                }
-                else if (!_appendMode)
-                {
-                    _operator = op;
-                }
-                else
-                {
-                    _lastResult = ParseDisplay();
+                    _lastResult = fun(_lastResult, number);
+                    Print(_lastResult);
                 }
                 _operator = op;
+                _lastPressed = ButtonCategory.BinaryOperator;
             }
             else
             {
                 throw new ArgumentException($"Unknown operator '{op}'");
             }
-            _appendMode = false;
         }
 
         private void Print(double number)
         {
+            // Check if the integer part of number is too big
+            int x = (int) number;
+            if (x.ToString().Length > DISPLAY_SIZE)
+            {
+                Print("-E-");
+                return;
+            }
+
             _display = number.ToString();
+
+            // Check if there are too many decimal places 
             int digitsCount = _display.Where(c => char.IsNumber(c)).Count();
             if (digitsCount > DISPLAY_SIZE)
             {
-                _display = new string(_display.Reverse().Skip(digitsCount - DISPLAY_SIZE).Reverse().ToArray());
+                int digitsAfterComma = _display.Reverse().TakeWhile(c => char.IsNumber(c)).Count();
+                int digitsBeforeComma = digitsCount - digitsAfterComma;
+                _display = Math.Round(number, DISPLAY_SIZE - digitsBeforeComma).ToString();
             }
+
+            // Check if the last decimal is zero
+            if (_display.Contains(','))
+            {
+                _display = new string(_display.Reverse().SkipWhile(c => c == '0').Reverse().ToArray());
+            }
+
+            if (_display.Last() == ',')
+            {
+                _display = new string(_display.TakeWhile(c => c != ',').ToArray());
+            }
+        }
+
+        private void Print(string message)
+        {
+            _display = message;
         }
 
         private double ParseDisplay()
@@ -160,11 +208,20 @@ namespace PrvaDomacaZadaca_Kalkulator
                 {
                     operand = ParseDisplay();
                 }
+                if (double.IsNaN(_lastResult))
+                {
+                    _lastResult = ParseDisplay();
+                }
+                    
                 var op = BinaryOperatorProvider.GetOperator(_operator);
                 _lastResult = op(_lastResult, operand);
                 Print(_lastResult);
             }
-            _appendMode = false;
+            else
+            {
+                Print(ParseDisplay());  
+            }
         }
+
     }
 }
