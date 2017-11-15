@@ -16,9 +16,8 @@ namespace PrvaDomacaZadaca_Kalkulator
 
     public class Calculator : ICalculator
     {
-        private const int DISPLAY_SIZE = 10;
         private const char EMPTY_OPERATOR = 'N';
-        private string _display;
+        private Display _display;
         private char _operator;
         private double _lastResult;
         private ButtonCategory _lastPressed;
@@ -26,7 +25,7 @@ namespace PrvaDomacaZadaca_Kalkulator
 
         public Calculator()
         {
-            _display = "0";
+            _display = new Display();
             _operator = EMPTY_OPERATOR;
             _lastResult = double.NaN;
             CultureInfo.CurrentCulture = new CultureInfo("hr-HR");
@@ -36,16 +35,11 @@ namespace PrvaDomacaZadaca_Kalkulator
 
         public string GetCurrentDisplayState()
         {
-            return _display;
+            return _display.CurrentState;
         }
 
         public void Press(char inPressedDigit)
         {
-            Console.WriteLine($"Pressed: {inPressedDigit}");
-            Console.WriteLine($"Last result: {_lastResult}");
-            Console.WriteLine($"Operator: {_operator}");
-            Console.WriteLine("--------------------------------");
-
             if (char.IsDigit(inPressedDigit))
             {
                 HandleDigit(inPressedDigit);
@@ -53,7 +47,7 @@ namespace PrvaDomacaZadaca_Kalkulator
             else if (inPressedDigit == ',')
             {
                 _lastPressed = ButtonCategory.Comma;
-                _display += inPressedDigit;    
+                _display.Append(inPressedDigit);    
             }
             else if (inPressedDigit == '=')
             {
@@ -66,21 +60,21 @@ namespace PrvaDomacaZadaca_Kalkulator
             }
             else if (inPressedDigit == 'C')
             {
-                _display = "0";
+                _display.Clear();
             }
             else if (inPressedDigit == 'O')
             {
-                _display = "0";
+                _display.Clear();
                 _lastResult = double.NaN;
                 _lastPressed = ButtonCategory.Nothing;
             }
             else if (inPressedDigit == 'P')
             {
-                _memory = _display;
+                _memory = _display.CurrentState;
             }
             else if (inPressedDigit == 'G')
             {
-                Print(_memory);
+                _display.Print(_memory);
             }
             else
             {
@@ -90,36 +84,36 @@ namespace PrvaDomacaZadaca_Kalkulator
 
         private void ChangeSign()
         {
-            if (_display.First() == '-')
+            string currentDisplay = GetCurrentDisplayState(); 
+            if (currentDisplay.First() == '-')
             {
-                _display = _display.Substring(1);
+                currentDisplay = currentDisplay.Substring(1);
             }
-            _display = "-" + _display;
+            else
+            {
+                currentDisplay = "-" + currentDisplay;
+            }
+            _display.Print(currentDisplay);
         }
 
         private void HandleDigit(char digit)
         {
-            if (_display == "0" && digit == '0')
+            if (_display.CurrentState == "0" && digit == '0')
             {
                 return;
             }
 
             if (_lastPressed == ButtonCategory.BinaryOperator && double.IsNaN(_lastResult))
             {
-                _lastResult = ParseDisplay();
+                _lastResult = _display.ParseDisplay();
             }
 
             if (_lastPressed != ButtonCategory.Comma && _lastPressed != ButtonCategory.Digit)
             {
-                _display = "";
+                _display.Delete();
             }
 
-            int digitsCount = _display.Where(c => char.IsNumber(c)).Count();
-            if (digitsCount < DISPLAY_SIZE)
-            {
-                _display += digit;
-            }
-
+            _display.Append(digit);
             _lastPressed = ButtonCategory.Digit;
         }
 
@@ -128,22 +122,22 @@ namespace PrvaDomacaZadaca_Kalkulator
             if (UnaryOperatorProvider.IsUnaryOperator(op))
             {
                 var fun = UnaryOperatorProvider.GetOperator(op);
-                Print(fun(ParseDisplay()));
+                _display.Print(fun(_display.ParseDisplay()));
                 _lastPressed = ButtonCategory.UnaryOperator;
             }
             else if (BinaryOperatorProvider.IsBinaryOperator(op))
             {
                 if (double.IsNaN(_lastResult))
                 {
-                    _lastResult = ParseDisplay();    
+                    _lastResult = _display.ParseDisplay();    
                 }
 
                 if (_operator != EMPTY_OPERATOR && _lastPressed != ButtonCategory.BinaryOperator)
                 {
-                    double number = ParseDisplay();
+                    double number = _display.ParseDisplay();
                     var fun = BinaryOperatorProvider.GetOperator(_operator);
                     _lastResult = fun(_lastResult, number);
-                    Print(_lastResult);
+                    _display.Print(_lastResult);
                 }
                 _operator = op;
                 _lastPressed = ButtonCategory.BinaryOperator;
@@ -154,72 +148,27 @@ namespace PrvaDomacaZadaca_Kalkulator
             }
         }
 
-        private void Print(double number)
-        {
-            // Check if the integer part of number is too big
-            int x = (int) number;
-            if (x.ToString().Length > DISPLAY_SIZE)
-            {
-                Print("-E-");
-                return;
-            }
-
-            _display = number.ToString();
-
-            // Check if there are too many decimal places 
-            int digitsCount = _display.Where(c => char.IsNumber(c)).Count();
-            if (digitsCount > DISPLAY_SIZE)
-            {
-                int digitsAfterComma = _display.Reverse().TakeWhile(c => char.IsNumber(c)).Count();
-                int digitsBeforeComma = digitsCount - digitsAfterComma;
-                _display = Math.Round(number, DISPLAY_SIZE - digitsBeforeComma).ToString();
-            }
-
-            // Check if the last decimal is zero
-            if (_display.Contains(','))
-            {
-                _display = new string(_display.Reverse().SkipWhile(c => c == '0').Reverse().ToArray());
-            }
-
-            if (_display.Last() == ',')
-            {
-                _display = new string(_display.TakeWhile(c => c != ',').ToArray());
-            }
-        }
-
-        private void Print(string message)
-        {
-            _display = message;
-        }
-
-        private double ParseDisplay()
-        {
-            double number = 0.0;
-            bool success = double.TryParse(_display, out number);
-            return number;
-        }
-
         private void EqualsSign()
         {
             if (_operator != EMPTY_OPERATOR)
             {
                 double operand = _lastResult;
-                if (!string.IsNullOrEmpty(_display))
+                if (!string.IsNullOrEmpty(_display.CurrentState))
                 {
-                    operand = ParseDisplay();
+                    operand = _display.ParseDisplay();
                 }
                 if (double.IsNaN(_lastResult))
                 {
-                    _lastResult = ParseDisplay();
+                    _lastResult = _display.ParseDisplay();
                 }
                     
                 var op = BinaryOperatorProvider.GetOperator(_operator);
                 _lastResult = op(_lastResult, operand);
-                Print(_lastResult);
+                _display.Print(_lastResult);
             }
             else
             {
-                Print(ParseDisplay());  
+                _display.Print(_display.ParseDisplay());  
             }
         }
 

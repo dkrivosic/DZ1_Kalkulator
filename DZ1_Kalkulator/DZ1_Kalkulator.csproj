@@ -43,6 +43,7 @@
     <Compile Include="ExampleTests.cs" />
     <Compile Include="BinaryOperatorProvider.cs" />
     <Compile Include="UnaryOperatorProvider.cs" />
+    <Compile Include="Display.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

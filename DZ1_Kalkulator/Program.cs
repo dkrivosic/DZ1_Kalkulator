@@ -9,14 +9,9 @@ namespace PrvaDomacaZadaca_Kalkulator
         {
             ICalculator calculator = Factory.CreateCalculator();
             calculator.Press('2');
-            calculator.Press('P');
-            calculator.Press('3');
-            calculator.Press('P');
-            calculator.Press('4');
-            calculator.Press('P');
-            calculator.Press('5');
-            calculator.Press('G');
-            //234
+            calculator.Press('M');
+            Console.WriteLine($"Screen: {calculator.GetCurrentDisplayState()}");
+            calculator.Press('M');
             Console.WriteLine($"Screen: {calculator.GetCurrentDisplayState()}");
         }
     }
